@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10\x61pi/search.proto\x12\x03\x61pi\"\x1e\n\rSearchRequest\x12\r\n\x05query\x18\x01 \x01(\t\"\xff\x01\n\x0eSearchResponse\x12>\n\x0esearch_results\x18\x01 \x03(\x0b\x32&.api.SearchResponse.SearchResultsEntry\x12\x33\n\x0e\x63lassification\x18\x02 \x01(\x0b\x32\x1b.api.ClassificationResponse\x12+\n\nclustering\x18\x03 \x01(\x0b\x32\x17.api.ClusteringResponse\x1aK\n\x12SearchResultsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12$\n\x05value\x18\x02 \x01(\x0b\x32\x15.api.DocumentResponse:\x02\x38\x01\"<\n\x10\x44ocumentResponse\x12(\n\x05items\x18\x01 \x03(\x0b\x32\x19.api.DocumentResponseItem\"H\n\x16\x43lassificationResponse\x12.\n\x05items\x18\x01 \x03(\x0b\x32\x1f.api.ClassificationResponseItem\"K\n\x1a\x43lassificationResponseItem\x12\n\n\x02id\x18\x01 \x01(\r\x12\r\n\x05label\x18\x02 \x01(\t\x12\x12\n\nsimilarity\x18\x03 \x01(\x01\"\x9c\x01\n\x12\x43lusteringResponse\x12\x12\n\ncluster_id\x18\x01 \x01(\r\x12\x39\n\x14most_repeated_labels\x18\x02 \x03(\x0b\x32\x1b.api.ClusteringResponseItem\x12\x37\n\x14\x64ocuments_in_cluster\x18\x03 \x03(\x0b\x32\x19.api.DocumentResponseItem\"B\n\x16\x43lusteringResponseItem\x12\n\n\x02id\x18\x01 \x01(\r\x12\r\n\x05label\x18\x02 \x01(\t\x12\r\n\x05\x63ount\x18\x03 \x01(\r\"F\n\x15ImportantNameResponse\x12-\n\x05items\x18\x01 \x03(\x0b\x32\x1e.api.ImportantNameResponseItem\"\x9e\x01\n\x19ImportantNameResponseItem\x12\n\n\x02id\x18\x01 \x01(\r\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0c\n\x04type\x18\x03 \x01(\t\x12\x11\n\tpage_rank\x18\x04 \x01(\x01\x12\x11\n\thits_rank\x18\x05 \x01(\x01\x12\x33\n\x0b\x63lose_names\x18\x06 \x03(\x0b\x32\x1e.api.ImportantNameResponseItem\"e\n\x14\x44ocumentResponseItem\x12\x1f\n\x08\x64ocument\x18\x01 \x01(\x0b\x32\r.api.Document\x12\x18\n\x10reason_of_choice\x18\x02 \x01(\t\x12\x12\n\nsimilarity\x18\x03 \x01(\x01\"E\n\x08\x44ocument\x12\n\n\x02id\x18\x01 \x01(\r\x12\x0e\n\x06mesra1\x18\x02 \x01(\t\x12\x0e\n\x06mesra2\x18\x03 \x01(\t\x12\r\n\x05label\x18\x04 \x01(\t2?\n\x06Search\x12\x35\n\x08Retrieve\x12\x12.api.SearchRequest\x1a\x13.api.SearchResponse\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10\x61pi/search.proto\x12\x03\x61pi\"\x1e\n\rSearchRequest\x12\r\n\x05query\x18\x01 \x01(\t\"\xb4\x02\n\x0eSearchResponse\x12>\n\x0esearch_results\x18\x01 \x03(\x0b\x32&.api.SearchResponse.SearchResultsEntry\x12\x33\n\x0e\x63lassification\x18\x02 \x01(\x0b\x32\x1b.api.ClassificationResponse\x12+\n\nclustering\x18\x03 \x01(\x0b\x32\x17.api.ClusteringResponse\x12\x33\n\x0fimportant_names\x18\x04 \x01(\x0b\x32\x1a.api.ImportantNameResponse\x1aK\n\x12SearchResultsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12$\n\x05value\x18\x02 \x01(\x0b\x32\x15.api.DocumentResponse:\x02\x38\x01\"<\n\x10\x44ocumentResponse\x12(\n\x05items\x18\x01 \x03(\x0b\x32\x19.api.DocumentResponseItem\"H\n\x16\x43lassificationResponse\x12.\n\x05items\x18\x01 \x03(\x0b\x32\x1f.api.ClassificationResponseItem\"K\n\x1a\x43lassificationResponseItem\x12\n\n\x02id\x18\x01 \x01(\r\x12\r\n\x05label\x18\x02 \x01(\t\x12\x12\n\nsimilarity\x18\x03 \x01(\x01\"\x9c\x01\n\x12\x43lusteringResponse\x12\x12\n\ncluster_id\x18\x01 \x01(\r\x12\x39\n\x14most_repeated_labels\x18\x02 \x03(\x0b\x32\x1b.api.ClusteringResponseItem\x12\x37\n\x14\x64ocuments_in_cluster\x18\x03 \x03(\x0b\x32\x19.api.DocumentResponseItem\"B\n\x16\x43lusteringResponseItem\x12\n\n\x02id\x18\x01 \x01(\r\x12\r\n\x05label\x18\x02 \x01(\t\x12\r\n\x05\x63ount\x18\x03 \x01(\r\"F\n\x15ImportantNameResponse\x12-\n\x05items\x18\x01 \x03(\x0b\x32\x1e.api.ImportantNameResponseItem\"\x9e\x01\n\x19ImportantNameResponseItem\x12\n\n\x02id\x18\x01 \x01(\r\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0c\n\x04type\x18\x03 \x01(\t\x12\x11\n\tpage_rank\x18\x04 \x01(\x01\x12\x11\n\thits_rank\x18\x05 \x01(\x01\x12\x33\n\x0b\x63lose_names\x18\x06 \x03(\x0b\x32\x1e.api.ImportantNameResponseItem\"e\n\x14\x44ocumentResponseItem\x12\x1f\n\x08\x64ocument\x18\x01 \x01(\x0b\x32\r.api.Document\x12\x18\n\x10reason_of_choice\x18\x02 \x01(\t\x12\x12\n\nsimilarity\x18\x03 \x01(\x01\"E\n\x08\x44ocument\x12\n\n\x02id\x18\x01 \x01(\r\x12\x0e\n\x06mesra1\x18\x02 \x01(\t\x12\x0e\n\x06mesra2\x18\x03 \x01(\t\x12\r\n\x05label\x18\x04 \x01(\t2?\n\x06Search\x12\x35\n\x08Retrieve\x12\x12.api.SearchRequest\x1a\x13.api.SearchResponse\"\x00\x62\x06proto3')
 
 
 
@@ -124,27 +124,27 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _SEARCHREQUEST._serialized_start=25
   _SEARCHREQUEST._serialized_end=55
   _SEARCHRESPONSE._serialized_start=58
-  _SEARCHRESPONSE._serialized_end=313
-  _SEARCHRESPONSE_SEARCHRESULTSENTRY._serialized_start=238
-  _SEARCHRESPONSE_SEARCHRESULTSENTRY._serialized_end=313
-  _DOCUMENTRESPONSE._serialized_start=315
-  _DOCUMENTRESPONSE._serialized_end=375
-  _CLASSIFICATIONRESPONSE._serialized_start=377
-  _CLASSIFICATIONRESPONSE._serialized_end=449
-  _CLASSIFICATIONRESPONSEITEM._serialized_start=451
-  _CLASSIFICATIONRESPONSEITEM._serialized_end=526
-  _CLUSTERINGRESPONSE._serialized_start=529
-  _CLUSTERINGRESPONSE._serialized_end=685
-  _CLUSTERINGRESPONSEITEM._serialized_start=687
-  _CLUSTERINGRESPONSEITEM._serialized_end=753
-  _IMPORTANTNAMERESPONSE._serialized_start=755
-  _IMPORTANTNAMERESPONSE._serialized_end=825
-  _IMPORTANTNAMERESPONSEITEM._serialized_start=828
-  _IMPORTANTNAMERESPONSEITEM._serialized_end=986
-  _DOCUMENTRESPONSEITEM._serialized_start=988
-  _DOCUMENTRESPONSEITEM._serialized_end=1089
-  _DOCUMENT._serialized_start=1091
-  _DOCUMENT._serialized_end=1160
-  _SEARCH._serialized_start=1162
-  _SEARCH._serialized_end=1225
+  _SEARCHRESPONSE._serialized_end=366
+  _SEARCHRESPONSE_SEARCHRESULTSENTRY._serialized_start=291
+  _SEARCHRESPONSE_SEARCHRESULTSENTRY._serialized_end=366
+  _DOCUMENTRESPONSE._serialized_start=368
+  _DOCUMENTRESPONSE._serialized_end=428
+  _CLASSIFICATIONRESPONSE._serialized_start=430
+  _CLASSIFICATIONRESPONSE._serialized_end=502
+  _CLASSIFICATIONRESPONSEITEM._serialized_start=504
+  _CLASSIFICATIONRESPONSEITEM._serialized_end=579
+  _CLUSTERINGRESPONSE._serialized_start=582
+  _CLUSTERINGRESPONSE._serialized_end=738
+  _CLUSTERINGRESPONSEITEM._serialized_start=740
+  _CLUSTERINGRESPONSEITEM._serialized_end=806
+  _IMPORTANTNAMERESPONSE._serialized_start=808
+  _IMPORTANTNAMERESPONSE._serialized_end=878
+  _IMPORTANTNAMERESPONSEITEM._serialized_start=881
+  _IMPORTANTNAMERESPONSEITEM._serialized_end=1039
+  _DOCUMENTRESPONSEITEM._serialized_start=1041
+  _DOCUMENTRESPONSEITEM._serialized_end=1142
+  _DOCUMENT._serialized_start=1144
+  _DOCUMENT._serialized_end=1213
+  _SEARCH._serialized_start=1215
+  _SEARCH._serialized_end=1278
 # @@protoc_insertion_point(module_scope)

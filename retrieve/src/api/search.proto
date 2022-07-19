@@ -14,6 +14,7 @@ message SearchResponse {
   map<string, DocumentResponse> search_results = 1;
   ClassificationResponse classification = 2;
   ClusteringResponse clustering = 3;
+  ImportantNameResponse important_names = 4;
 }
 
 message DocumentResponse {
