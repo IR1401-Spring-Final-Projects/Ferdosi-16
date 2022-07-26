@@ -1,4 +1,3 @@
-# syntax=docker/dockerfile:1
 FROM python:3.10
 
 WORKDIR /app/
@@ -9,4 +8,7 @@ RUN pip install -r /tmp/requirements.txt
 COPY src/ /app/
 COPY resources/ /app/resources/
 
-CMD ["python", "main.py"]
+COPY entrypoint.sh /app/
+RUN ["chmod", "+x", "./entrypoint.sh"]
+
+CMD ./entrypoint.sh
