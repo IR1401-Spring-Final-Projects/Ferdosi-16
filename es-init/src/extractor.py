@@ -3,9 +3,6 @@ from tqdm import tqdm
 from bs4 import BeautifulSoup
 from elasticsearch import Elasticsearch
 
-with io.open('resources/shahnameh-ferdosi.htm', 'r', encoding='utf-8') as file:
-    html = file.read()
-
 
 def filter_poems(tag):
     return tag.name == 'span' and tag.has_attr('class') and 'content_text' in tag.get('class')
@@ -22,6 +19,8 @@ def filter_poems_labels(tag):
 class Extractor:
 
     def __init__(self, es_host):
+        with io.open('resources/shahnameh-ferdosi.htm', 'r', encoding='utf-8') as file:
+            self.html = file.read()
         self.es = Elasticsearch(hosts=es_host)
         self.skip_labels = ['مشخصات کتاب', 'معرفی']
 
@@ -35,7 +34,7 @@ class Extractor:
         self.es.index(index='ferdosi', body=doc)
 
     def extract(self):
-        soup = BeautifulSoup(html, 'html.parser')
+        soup = BeautifulSoup(self.html, 'html.parser')
         poems_and_labels = soup.find_all(filter_poems_labels)
 
         buffered_text = None
