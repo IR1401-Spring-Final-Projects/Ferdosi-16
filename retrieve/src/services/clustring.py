@@ -130,5 +130,5 @@ if __name__ == '__main__':
     model = Clustering(df, 9, _checkpoint=None)
     model.plot_clusters()
 
-    cluster_id, labels = model.predict_cluster('رستم رفت جنگ و سهراب سوییچ رخش را برداشت رفت توران')
+    cid, labels = model.predict_cluster('رستم رفت جنگ و سهراب سوییچ رخش را برداشت رفت توران')
     print('labels: ', labels)

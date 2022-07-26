@@ -5,7 +5,6 @@ from transformers import AutoTokenizer, DataCollatorWithPadding, pipeline, \
     AutoModelForSequenceClassification, TrainingArguments, Trainer
 
 import pandas as pd
-import numpy as np
 import hazm
 
 import torch.nn as nn
@@ -41,16 +40,14 @@ class ClassificationModel:
     def __init__(self, model_name, num_labels):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+        self.classifier = None
         self.model = AutoModelForSequenceClassification.from_pretrained(
             model_name, num_labels=num_labels)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-        self.classifier = pipeline(
-            "sentiment-analysis", model=self.model, tokenizer=self.tokenizer)
-
     @staticmethod
-    def training_args_builder(output_dir="../models/", learning_rate=1e-3, train_batch_size=32,
-                              eval_batch_size=32, num_train_epochs=100, weight_decay=0.01):
+    def training_args_builder(output_dir="../models/", learning_rate=2e-5, train_batch_size=16,
+                              eval_batch_size=16, num_train_epochs=10, weight_decay=0.01):
         return TrainingArguments(
             output_dir=output_dir,
             per_device_train_batch_size=train_batch_size,
@@ -63,6 +60,7 @@ class ClassificationModel:
         )
 
     def train(self, dataset, lose_weight, training_args=None):
+
         training_args = training_args or self.training_args_builder()
 
         train_df, validation_df = train_test_split(
@@ -93,26 +91,23 @@ class ClassificationModel:
         ).train()
 
     def predict(self, texts):
-        self.classifier.model.to('cpu')
+        if not self.classifier:
+            self.model.to('cpu')
+            self.classifier = pipeline("sentiment-analysis", model=self.model, tokenizer=self.tokenizer)
+
         inner_labels = self.classifier(texts)
         return list(map(lambda lab: int(lab['label'].split('_')[1]), inner_labels))
 
 
 if __name__ == '__main__':
-    df = pd.read_csv(
-        '/home/alireza/Documents/IR/shahnameh-information-retrieval/es-init/data/shahnameh-labeled.csv')
-
-    df.head()
-
+    df = pd.read_csv('/resources/shahnameh-labeled.csv')
     num_stories = 10
 
     groups = df.groupby('labels').count().sort_values('text', ascending=False)
     groups = groups[:num_stories].reset_index()
 
     labels = groups.sort_values('labels').labels.tolist()
-    counts = groups.sort_values('labels').text.tolist()
-
-    biggest_class_num = np.max(counts)
+    counts = groups.sort_values('labels').text.to_numpy()
 
     id2lab = {idx: label for idx, label in enumerate(labels)}
     lab2id = {label: idx for idx, label in enumerate(labels)}
@@ -127,27 +122,22 @@ if __name__ == '__main__':
     main_df, test_df = train_test_split(
         df, test_size=0.1, random_state=42, shuffle=True)
 
-    classes = main_df[main_df.labels < len(id2lab)]
-    others = main_df[main_df.labels == len(id2lab)]
+    main_df = main_df[main_df.labels < len(id2lab)]
 
-    others = others.sample(
-        np.min([others.shape[0], len(id2lab) * biggest_class_num]))
-
-    main_df = pd.concat([classes, others])
-
-    counts = np.array(counts + [df[df.labels == num_stories].shape[0]])
+    print("counts: ", counts / counts.sum())
     weight_loss = (1 / counts) / (1 / counts).sum()
+    print("weight_loss: ", weight_loss / weight_loss.sum())
 
     # New pre-trained model: mitra-mir/BERT-Persian-Poetry
     directory = None
     classifier = ClassificationModel(
-        directory or "HooshvareLab/bert-fa-zwnj-base", num_labels=len(labels) + 1)
+        directory or "HooshvareLab/bert-fa-zwnj-base", num_labels=len(labels))
 
     classifier.train(main_df, weight_loss, None)
 
     predictions = classifier.predict(main_df['text'].to_list())
 
-    print('train data:')
+    print('+ train data:')
     metric = load_metric("f1")
     print("f1_score: ", metric.compute(
         predictions=predictions, references=main_df['labels'], average='micro'))
@@ -158,7 +148,7 @@ if __name__ == '__main__':
 
     predictions = classifier.predict(test_df['text'].to_list())
 
-    print('test data:')
+    print('+ test data:')
     metric = load_metric("f1")
     print("f1_score: ", metric.compute(
         predictions=predictions, references=test_df['labels'], average='micro'))
