@@ -1,20 +1,7 @@
 import io
 from tqdm import tqdm
-import pandas as pd
 from bs4 import BeautifulSoup
 from elasticsearch import Elasticsearch
-
-
-def filter_poems(tag):
-    return tag.name == 'span' and tag.has_attr('class') and 'content_text' in tag.get('class')
-
-
-def filter_labels(tag):
-    return tag.name == 'h2' and tag.has_attr('class') and 'content_h2' in tag.get('class')
-
-
-def filter_poems_labels(tag):
-    return filter_poems(tag) or filter_labels(tag)
 
 
 class Extractor:
@@ -24,6 +11,18 @@ class Extractor:
             self.html = file.read()
         self.es = Elasticsearch(hosts=es_host)
         self.skip_labels = ['مشخصات کتاب', 'معرفی']
+
+    @staticmethod
+    def filter_poems(tag):
+        return tag.name == 'span' and tag.has_attr('class') and 'content_text' in tag.get('class')
+
+    @staticmethod
+    def filter_labels(tag):
+        return tag.name == 'h2' and tag.has_attr('class') and 'content_h2' in tag.get('class')
+
+    @staticmethod
+    def filter_poems_labels(tag):
+        return Extractor.filter_poems(tag) or Extractor.filter_labels(tag)
 
     def write_to_es(self, mesra1, mesra2, label):
         doc = {
@@ -42,9 +41,9 @@ class Extractor:
 
         label = None
         for item in tqdm(poems_and_labels):
-            if filter_labels(item):
+            if Extractor.filter_labels(item):
                 label = item.get_text()
-            elif filter_poems(item) and label and label not in self.skip_labels:
+            elif Extractor.filter_poems(item) and label and label not in self.skip_labels:
                 text = item.get_text()
                 if '****' not in text:
                     buffered_text = text
@@ -64,40 +63,3 @@ class Extractor:
         except:
             print('Extracting...')
             self.extract()
-
-
-class HTML2CSV:
-
-    @staticmethod
-    def extract_to(address='resources/shahnameh-labeled.csv'):
-
-        print('Extracting...')
-        soup = BeautifulSoup(html, 'html.parser')
-        poems_and_labels = soup.find_all(filter_poems_labels)
-
-        skip_labels = {'مشخصات کتاب', 'معرفی'}
-        buffered_text = None
-
-        dataset = []
-
-        label = None
-        for item in tqdm(poems_and_labels):
-
-            if filter_labels(item):
-                label = item.get_text()
-            elif not (filter_poems(item) and label) or label in skip_labels:
-                continue
-
-            text = item.get_text()
-            if '****' not in text:
-                buffered_text = text
-                continue
-
-            if buffered_text:
-                text = ' '.join([buffered_text, text])
-                buffered_text = None
-
-            mesras = [sp.strip() for sp in text.split('****')]
-            dataset.append({'text': ' - '.join(mesras), 'labels': label})
-
-        pd.DataFrame(dataset).to_csv(address, index=False)

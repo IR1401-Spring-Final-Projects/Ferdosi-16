@@ -19,7 +19,7 @@ class SearchResult:
         return self._method
 
 
-df = pd.read_csv('es-init/resources/shahnameh-labeled.csv')
+df = pd.read_csv('resources/shahnameh-labeled.csv')
 search_model = Similarities(df)
 
 
