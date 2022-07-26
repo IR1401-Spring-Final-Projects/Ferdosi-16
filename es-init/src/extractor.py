@@ -3,7 +3,7 @@ from tqdm import tqdm
 from bs4 import BeautifulSoup
 from elasticsearch import Elasticsearch
 
-with io.open('data/shahnameh-ferdosi.htm', 'r', encoding='utf-8') as file:
+with io.open('resources/shahnameh-ferdosi.htm', 'r', encoding='utf-8') as file:
     html = file.read()
 
 
@@ -35,7 +35,6 @@ class Extractor:
         self.es.index(index='ferdosi', body=doc)
 
     def extract(self):
-        print('Extracting...')
         soup = BeautifulSoup(html, 'html.parser')
         poems_and_labels = soup.find_all(filter_poems_labels)
 
@@ -63,4 +62,5 @@ class Extractor:
             self.es.indices.get(index='ferdosi')
             print('Index already exists')
         except:
+            print('Extracting...')
             self.extract()

@@ -4,12 +4,9 @@ FROM python:3.10
 WORKDIR /app/
 
 COPY requirements.txt requirements.txt
-
 RUN pip install -r requirements.txt
 
 COPY src/ /app/
-COPY ./entrypoint.sh /code/
+COPY resources/ /app/resources/
 
-RUN ["chmod", "+x", "./entrypoint.sh"]
-
-CMD ./entrypoint.sh
+CMD ["python", "main.py"]
