@@ -35,7 +35,7 @@ class Extractor:
 
     def extract(self):
         soup = BeautifulSoup(self.html, 'html.parser')
-        poems_and_labels = soup.find_all(filter_poems_labels)
+        poems_and_labels = soup.find_all(self.filter_poems_labels)
 
         buffered_text = None
 
@@ -63,3 +63,6 @@ class Extractor:
         except:
             print('Extracting...')
             self.extract()
+
+
+

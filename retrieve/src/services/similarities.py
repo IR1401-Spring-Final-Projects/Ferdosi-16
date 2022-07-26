@@ -67,8 +67,9 @@ class Similarities:
                 logger.warning(f'Skip {embedder.__name__[4:]}.')
                 continue
 
-            for i, batch in tqdm.tqdm(enumerate(embedder(batch_series(self.dataset['text'].tolist()), 5_000))):
-                self.save_model(batch, self.directory, f'{embedder.__name__[4:]}.{i}')
+            for i, batch in tqdm.tqdm(enumerate(batch_series(self.dataset['text'].tolist(), 5_000))):
+                embeddings = embedder(batch)
+                self.save_model(embeddings, self.directory, f'{embedder.__name__[4:]}.{i}')
 
         self.save_model(self.pipe, self.directory, 'pipeline')
 
@@ -124,7 +125,8 @@ class Similarities:
         offset = 0
 
         indexes, similarities = [], []
-        for file_name in filter(lambda file: file.startswith(name), os.listdir(self.directory)):
+        files = filter(lambda file: file.startswith(name), os.listdir(self.directory))
+        for file_name in sorted(files):
             batch_embeddings = self.load_model(self.directory, file_name)
             _idx, _sim = self.get_similar_by_cosine_distance(embedding, batch_embeddings, n)
 
@@ -140,27 +142,27 @@ class Similarities:
 
     def get_similar_by_tfidf(self, text, n):
         idx, _dist = self.get_similar_indexes(text, n, self.get_tfidf_embeddings)
-        return np.hstack((self.dataset.loc[idx], _dist))
+        return np.hstack((self.dataset.iloc[idx], _dist))
 
     def get_similar_by_boolean(self, text, n):
         idx, _dist = self.get_similar_indexes(text, n, self.get_boolean_embeddings)
-        return np.hstack((self.dataset.loc[idx], _dist))
+        return np.hstack((self.dataset.iloc[idx], _dist))
 
     def get_similar_by_word_embedding(self, text, n):
         idx, _dist = self.get_similar_indexes(text, n, self.get_word_cidf_embeddings)
-        return np.hstack((self.dataset.loc[idx], _dist))
+        return np.hstack((self.dataset.iloc[idx], _dist))
 
     def get_similar_by_sentence_embedding(self, text, n):
         idx, _dist = self.get_similar_indexes(text, n, self.get_transformer_embeddings)
-        return np.hstack((self.dataset.loc[idx], _dist))
+        return np.hstack((self.dataset.iloc[idx], _dist))
 
 
 if __name__ == '__main__':
 
-    df = pd.read_csv('../../../es-init/resources/shahnameh-labeled.csv')
+    df = pd.read_csv('../../resources/shahnameh-labeled.csv')
     model = Similarities(df)
 
-    sample = 'آغاز کتاب به نام خداوند جان و خرد - کزین برتر اندیشه برنگذرد'
+    sample = 'خداوند نام و خداوند گنج - بدانکس که دل را به دانش بشست'
 
     print('sample: ', sample)
 
