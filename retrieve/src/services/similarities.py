@@ -14,6 +14,8 @@ import os
 from transformers import AutoTokenizer, AutoConfig, AutoModel
 
 logger = logging.getLogger(__name__)
+stop_words = set(hazm.stopwords_list() + ['نمی', 'های'])
+normalizer = hazm.Normalizer(token_based=True)
 
 
 def batch_series(iterable, n=2_000):
@@ -23,9 +25,10 @@ def batch_series(iterable, n=2_000):
 
 class Similarities:
 
-    def __init__(self, documents, checkpoint=None):
+    def __init__(self, dataset, checkpoint=None):
 
-        self.documents = np.array(documents)
+        dataset['text'] = dataset['text'].apply(normalizer.normalize)
+        self.dataset = dataset.sort_values('text')
         self.word2vec = KeyedVectors.load_word2vec_format('../../resources/farsi_literature_word2vec_model.txt')
 
         model_name = 'HooshvareLab/bert-base-parsbert-uncased'
@@ -33,23 +36,23 @@ class Similarities:
         self.model = AutoModel.from_pretrained(
             model_name, local_files_only=True, config=AutoConfig.from_pretrained(model_name))
 
-        try:
+        if checkpoint and os.path.exists(os.path.join(checkpoint, 'pipeline')):
 
             self.pipe = self.load_model(checkpoint, 'pipeline')
-            self.word_idf = dict(zip(self.pipe['count'].get_feature_names_out(), self.pipe['tfidf'].idf_))
             self.directory = checkpoint
-            return
 
-        except:
-            logger.warning('It is not possible to load models. Again the models are trained.')
+        else:
+            logger.warning('It is not possible to load pipeline. Again the models are trained.')
 
-        self.pipe = Pipeline([('count', CountVectorizer(analyzer='word', ngram_range=(1, 2), max_features=20_000)),
-                              ('tfidf', TfidfTransformer(sublinear_tf=True))]).fit(self.documents.tolist())
+            self.directory = '../../resources/similarities/'
+            if not os.path.exists(self.directory): os.mkdir(self.directory)
+
+            self.pipe = Pipeline(
+                [('count',
+                  CountVectorizer(analyzer='word', ngram_range=(1, 2), max_features=20_000, stop_words=stop_words)),
+                 ('tfidf', TfidfTransformer(sublinear_tf=True))]).fit(self.dataset['text'].tolist())
 
         self.word_idf = dict(zip(self.pipe['count'].get_feature_names_out(), self.pipe['tfidf'].idf_))
-
-        self.directory = '../../resources/similarities/'
-        if not os.path.exists(self.directory): os.mkdir(self.directory)
 
         embedders = [
             self.get_tfidf_embeddings,
@@ -59,7 +62,12 @@ class Similarities:
         ]
 
         for embedder in embedders:
-            for i, batch in tqdm.tqdm(enumerate(batch_series(embedder(self.documents.tolist()), 10_000))):
+
+            if any(x.startswith(embedder.__name__[4:]) for x in os.listdir(self.directory)):
+                logger.warning(f'Skip {embedder.__name__[4:]}.')
+                continue
+
+            for i, batch in tqdm.tqdm(enumerate(embedder(batch_series(self.dataset['text'].tolist()), 5_000))):
                 self.save_model(batch, self.directory, f'{embedder.__name__[4:]}.{i}')
 
         self.save_model(self.pipe, self.directory, 'pipeline')
@@ -68,9 +76,9 @@ class Similarities:
     def get_similar_by_cosine_distance(vector, documents, n=5):
         sq_vector = np.squeeze(vector)
         similarity = documents.dot(sq_vector) / (np.linalg.norm(documents, axis=1) * np.linalg.norm(sq_vector) + 1e-10)
-        sorted_idx = np.argsort(similarity)
+        sorted_idx = np.argsort(similarity)[::-1]
 
-        return sorted_idx[-n:], similarity[sorted_idx[-n:]]
+        return sorted_idx[:n], similarity[sorted_idx[:n]]
 
     @staticmethod
     def save_model(obj, directory, file_name):
@@ -86,7 +94,7 @@ class Similarities:
     def get_transformer_embeddings(self, documents):
 
         result = None
-        for batch in tqdm.tqdm(batch_series(documents, 2_000)):
+        for batch in batch_series(documents, 1_000):
             output = self.model(**self.tokenizer(batch, return_tensors='pt', padding=True))
             output = np.mean(output.last_hidden_state.detach().numpy(), axis=1)
             result = output if result is None else np.concatenate((result, output))
@@ -127,48 +135,47 @@ class Similarities:
         similarities = np.array(similarities)
         indexes = np.array(indexes)
 
-        sorted_indexes = np.argsort(similarities)
-        return indexes[sorted_indexes[-n:]], similarities[-n:]
+        sorted_indexes = np.argsort(similarities)[::-1]
+        return indexes[sorted_indexes[:n]], similarities[sorted_indexes[:n]].reshape(-1, 1)
 
     def get_similar_by_tfidf(self, text, n):
         idx, _dist = self.get_similar_indexes(text, n, self.get_tfidf_embeddings)
-        return list(zip(self.documents[idx], _dist))
+        return np.hstack((self.dataset.loc[idx], _dist))
 
     def get_similar_by_boolean(self, text, n):
         idx, _dist = self.get_similar_indexes(text, n, self.get_boolean_embeddings)
-        return list(zip(self.documents[idx], _dist))
+        return np.hstack((self.dataset.loc[idx], _dist))
 
     def get_similar_by_word_embedding(self, text, n):
         idx, _dist = self.get_similar_indexes(text, n, self.get_word_cidf_embeddings)
-        return list(zip(self.documents[idx], _dist))
+        return np.hstack((self.dataset.loc[idx], _dist))
 
     def get_similar_by_sentence_embedding(self, text, n):
         idx, _dist = self.get_similar_indexes(text, n, self.get_transformer_embeddings)
-        return list(zip(self.documents[idx], _dist))
+        return np.hstack((self.dataset.loc[idx], _dist))
 
 
 if __name__ == '__main__':
-    normalizer = hazm.Normalizer(token_based=True)
 
-    poems = pd.read_csv('../../resources/shahnameh-dataset.csv')['text']
-    poems = poems.apply(normalizer.normalize).to_numpy()
-    np.random.shuffle(poems)
+    df = pd.read_csv('../../../es-init/resources/shahnameh-labeled.csv')
+    model = Similarities(df)
 
-    poems, sample = poems[1:], poems[0]
-    model = Similarities(poems)
+    sample = 'آغاز کتاب به نام خداوند جان و خرد - کزین برتر اندیشه برنگذرد'
+
+    print('sample: ', sample)
 
     print('-' * 100)
-    for poem, dist in model.get_similar_by_tfidf(sample, 10):
+    for poem, _, dist in model.get_similar_by_tfidf(sample, 10):
         print("tfidf: {:50s} \t with similarity of {:.2f}".format(poem, dist))
 
     print('-' * 100)
-    for poem, dist in model.get_similar_by_boolean(sample, 10):
+    for poem, _, dist in model.get_similar_by_boolean(sample, 10):
         print("bools: {:50s} \t with similarity of {:.2f}".format(poem, dist))
 
     print('-' * 100)
-    for poem, dist in model.get_similar_by_word_embedding(sample, 10):
+    for poem, _, dist in model.get_similar_by_word_embedding(sample, 10):
         print("word: {:50s} \t with similarity of {:.2f}".format(poem, dist))
 
     print('-' * 100)
-    for poem, dist in model.get_similar_by_sentence_embedding(sample, 10):
+    for poem, _, dist in model.get_similar_by_sentence_embedding(sample, 10):
         print("sent: {:50s} \t with similarity of {:.2f}".format(poem, dist))
