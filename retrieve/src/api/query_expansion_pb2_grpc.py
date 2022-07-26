@@ -5,7 +5,7 @@ import grpc
 from api import query_expansion_pb2 as api_dot_query__expansion__pb2
 
 
-class ExpandStub(object):
+class QueryExpandStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -15,13 +15,13 @@ class ExpandStub(object):
             channel: A grpc.Channel.
         """
         self.Expand = channel.unary_unary(
-                '/api.Expand/Expand',
+                '/api.QueryExpand/Expand',
                 request_serializer=api_dot_query__expansion__pb2.ExpandRequest.SerializeToString,
                 response_deserializer=api_dot_query__expansion__pb2.ExpandResponse.FromString,
                 )
 
 
-class ExpandServicer(object):
+class QueryExpandServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def Expand(self, request, context):
@@ -31,7 +31,7 @@ class ExpandServicer(object):
         raise NotImplementedError('Method not implemented!')
 
 
-def add_ExpandServicer_to_server(servicer, server):
+def add_QueryExpandServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'Expand': grpc.unary_unary_rpc_method_handler(
                     servicer.Expand,
@@ -40,12 +40,12 @@ def add_ExpandServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'api.Expand', rpc_method_handlers)
+            'api.QueryExpand', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
  # This class is part of an EXPERIMENTAL API.
-class Expand(object):
+class QueryExpand(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -59,7 +59,7 @@ class Expand(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/api.Expand/Expand',
+        return grpc.experimental.unary_unary(request, target, '/api.QueryExpand/Expand',
             api_dot_query__expansion__pb2.ExpandRequest.SerializeToString,
             api_dot_query__expansion__pb2.ExpandResponse.FromString,
             options, channel_credentials,

@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x19\x61pi/query_expansion.proto\x12\x03\x61pi\"\x1e\n\rExpandRequest\x12\r\n\x05query\x18\x01 \x01(\t\"8\n\x0e\x45xpandResponse\x12&\n\x05items\x18\x01 \x03(\x0b\x32\x17.api.ExpandResponseItem\":\n\x12\x45xpandResponseItem\x12\x10\n\x08\x65xpanded\x18\x01 \x01(\t\x12\x12\n\nconfidence\x18\x02 \x01(\x01\x32=\n\x06\x45xpand\x12\x33\n\x06\x45xpand\x12\x12.api.ExpandRequest\x1a\x13.api.ExpandResponse\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x19\x61pi/query_expansion.proto\x12\x03\x61pi\"\x1e\n\rExpandRequest\x12\r\n\x05query\x18\x01 \x01(\t\"8\n\x0e\x45xpandResponse\x12&\n\x05items\x18\x01 \x03(\x0b\x32\x17.api.ExpandResponseItem\":\n\x12\x45xpandResponseItem\x12\x10\n\x08\x65xpanded\x18\x01 \x01(\t\x12\x12\n\nconfidence\x18\x02 \x01(\x01\x32\x42\n\x0bQueryExpand\x12\x33\n\x06\x45xpand\x12\x12.api.ExpandRequest\x1a\x13.api.ExpandResponse\"\x00\x62\x06proto3')
 
 
 
@@ -42,7 +42,7 @@ ExpandResponseItem = _reflection.GeneratedProtocolMessageType('ExpandResponseIte
   })
 _sym_db.RegisterMessage(ExpandResponseItem)
 
-_EXPAND = DESCRIPTOR.services_by_name['Expand']
+_QUERYEXPAND = DESCRIPTOR.services_by_name['QueryExpand']
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
@@ -52,6 +52,6 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _EXPANDRESPONSE._serialized_end=122
   _EXPANDRESPONSEITEM._serialized_start=124
   _EXPANDRESPONSEITEM._serialized_end=182
-  _EXPAND._serialized_start=184
-  _EXPAND._serialized_end=245
+  _QUERYEXPAND._serialized_start=184
+  _QUERYEXPAND._serialized_end=250
 # @@protoc_insertion_point(module_scope)
