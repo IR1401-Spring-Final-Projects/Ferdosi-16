@@ -48,9 +48,20 @@ services:
     build: ./retrieve
     container_name: retrieve
     environment:
+      MAX_GRPC_WORKERS: 2
       GRPC_PORT: 9200
     ports:
       - '9201:9200'
+  web:
+    depends_on:
+      - retrieve
+    build: ./web
+    container_name: web
+    environment:
+      DJANGO_PORT: 8000
+#      DEBUG: false
+    ports:
+      - '8000:8000'
 
 volumes:
   es_data:
