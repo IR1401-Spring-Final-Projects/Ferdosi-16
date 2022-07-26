@@ -18,7 +18,7 @@ services:
       retries: 20
       start_period: 5s
     volumes:
-      - es_data:/usr/share/elasticsearch/data
+      - data:/usr/share/elasticsearch/data
   es-init:
     depends_on:
       es:
@@ -53,6 +53,8 @@ services:
       ELASTICSEARCH_URL: http://es:9200
     ports:
       - '9201:9200'
+    volumes:
+      - data:/root/.cache/huggingface/transformers
   web:
     depends_on:
       - retrieve
@@ -65,5 +67,5 @@ services:
       - '8000:8000'
 
 volumes:
-  es_data:
+  data:
     driver: local

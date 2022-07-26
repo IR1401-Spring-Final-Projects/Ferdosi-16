@@ -19,8 +19,15 @@ class SearchResult:
         return self._method
 
 
-df = pd.read_csv('resources/shahnameh-labeled.csv')
-search_model = Similarities(df)
+similarity_class = None
+
+
+def get_search_model():
+    global similarity_class
+    if not similarity_class:
+        df = pd.read_csv('resources/shahnameh-labeled.csv')
+        similarity_class = Similarities(df)
+    return similarity_class
 
 
 class BooleanSearchResult(SearchResult):
@@ -39,7 +46,7 @@ class BooleanSearchResult(SearchResult):
                     reason_of_choice=self._method,
                     similarity=similarity,
                 ) for i, (poem, label, similarity) in
-                enumerate(search_model.get_similar_by_boolean(query, 100))
+                enumerate(get_search_model().get_similar_by_boolean(query, 100))
             ]
         )
 
@@ -60,7 +67,7 @@ class TfidfSearchResult(SearchResult):
                     reason_of_choice=self._method,
                     similarity=similarity,
                 ) for i, (poem, label, similarity) in
-                enumerate(search_model.get_similar_by_tfidf(query, 100))
+                enumerate(get_search_model().get_similar_by_tfidf(query, 100))
             ]
         )
 
@@ -81,7 +88,7 @@ class WordEmbeddingSearchResult(SearchResult):
                     reason_of_choice=self._method,
                     similarity=similarity,
                 ) for i, (poem, label, similarity) in
-                enumerate(search_model.get_similar_by_word_embedding(query, 100))
+                enumerate(get_search_model().get_similar_by_word_embedding(query, 100))
             ]
         )
 
@@ -102,7 +109,7 @@ class SentEmbeddingSearchResult(SearchResult):
                     reason_of_choice=self._method,
                     similarity=similarity,
                 ) for i, (poem, label, similarity) in
-                enumerate(search_model.get_similar_by_sentence_embedding(query, 100))
+                enumerate(get_search_model().get_similar_by_sentence_embedding(query, 100))
             ]
         )
 

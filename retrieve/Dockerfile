@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM python:3.10
+FROM huggingface/transformers-pytorch-cpu:latest
 
 WORKDIR /app/
 
@@ -9,4 +9,4 @@ RUN pip install -r /tmp/requirements.txt
 COPY src/ /app/
 COPY resources/ /app/resources/
 
-CMD ["python", "main.py"]
+CMD ["python3", "main.py"]

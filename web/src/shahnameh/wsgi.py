@@ -24,13 +24,12 @@ def close_channel():
         print('GRPC channel already closed')
 
 
-signal.signal(signal.SIGINT, close_channel)
-signal.signal(signal.SIGTERM, close_channel)
+# signal.signal(signal.SIGINT, close_channel)
+# signal.signal(signal.SIGTERM, close_channel)
 
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'shahnameh.settings')
 
-application = get_wsgi_application()
 application = get_wsgi_application()
 application = WhiteNoise(application, root=settings.STATIC_ROOT)
 application.add_files(settings.STATIC_ROOT, prefix=settings.STATIC_URL)

@@ -13,7 +13,19 @@ class ElasticSearchQuery:
             'match': {
                 'beyt': {
                     'query': query,
-                    'fuzziness': 'AUTO'
+                    'fuzziness': 'AUTO',
                 }
             }
         })
+
+    def find_word(self, word):
+        results = self.es.search(index='words', query={
+            'match': {
+                'search_field': {
+                    'query': word,
+                    'fuzziness': 'AUTO',
+                }
+            }
+        })['hits']['hits']
+
+        return results[0]['_source']['word'] if len(results) > 0 else None

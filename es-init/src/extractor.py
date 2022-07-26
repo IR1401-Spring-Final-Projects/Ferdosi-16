@@ -33,9 +33,18 @@ class Extractor:
         }
         self.es.index(index='ferdosi', body=doc)
 
+    def write_word_to_es(self, word, count):
+        doc = {
+            'search_field': ' '.join([word] * count),
+            'word': word
+        }
+        self.es.index(index='words', body=doc)
+
     def extract(self):
         soup = BeautifulSoup(self.html, 'html.parser')
         poems_and_labels = soup.find_all(self.filter_poems_labels)
+
+        all_words = dict()
 
         buffered_text = None
 
@@ -55,6 +64,14 @@ class Extractor:
 
                 mesras = text.split('****')
                 self.write_to_es(mesras[0], mesras[1], label)
+                for w in mesras[0].split() + mesras[1].split():
+                    if w in all_words:
+                        all_words[w] += 1
+                    else:
+                        all_words[w] = 1
+
+        for word in all_words:
+            self.write_word_to_es(word, all_words[word])
 
     def run(self):
         try:
