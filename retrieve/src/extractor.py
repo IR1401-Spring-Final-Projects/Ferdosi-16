@@ -1,5 +1,6 @@
 import io
 import os.path
+import logging
 
 import pandas as pd
 from tqdm import tqdm
@@ -23,7 +24,7 @@ class HTML2CSV:
     @staticmethod
     def extract_to(directory, file_name):
 
-        print('Extracting...')
+        logging.info('Extracting...')
 
         with io.open(os.path.join(directory, 'shahnameh-ferdosi.htm'), 'r', encoding='utf-8') as file:
             html = file.read()
@@ -57,3 +58,4 @@ class HTML2CSV:
             dataset.append({'text': ' - '.join(mesras), 'labels': label})
 
         pd.DataFrame(dataset).to_csv(os.path.join(directory, file_name), index=False)
+        logging.info('Extracted.')

@@ -29,12 +29,12 @@ class Similarities:
 
         dataset['text'] = dataset['text'].apply(normalizer.normalize)
         self.dataset = dataset.sort_values('text')
-        self.word2vec = KeyedVectors.load_word2vec_format('../../resources/farsi_literature_word2vec_model.txt')
+        self.word2vec = KeyedVectors.load_word2vec_format('resources/farsi_literature_word2vec_model.txt')
 
         model_name = 'HooshvareLab/bert-base-parsbert-uncased'
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name, local_files_only=True)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name, local_files_only=False)
         self.model = AutoModel.from_pretrained(
-            model_name, local_files_only=True, config=AutoConfig.from_pretrained(model_name))
+            model_name, local_files_only=False, config=AutoConfig.from_pretrained(model_name))
 
         if checkpoint and os.path.exists(os.path.join(checkpoint, 'pipeline')):
 
@@ -44,7 +44,7 @@ class Similarities:
         else:
             logger.warning('It is not possible to load pipeline. Again the models are trained.')
 
-            self.directory = '../../resources/similarities/'
+            self.directory = 'resources/similarities/'
             if not os.path.exists(self.directory): os.mkdir(self.directory)
 
             self.pipe = Pipeline(
@@ -52,7 +52,7 @@ class Similarities:
                   CountVectorizer(analyzer='word', ngram_range=(1, 2), max_features=20_000, stop_words=stop_words)),
                  ('tfidf', TfidfTransformer(sublinear_tf=True))]).fit(self.dataset['text'].tolist())
 
-        self.word_idf = dict(zip(self.pipe['count'].get_feature_names_out(), self.pipe['tfidf'].idf_))
+        self.word_idf = dict(zip(self.pipe['count'].get_feature_names(), self.pipe['tfidf'].idf_))
 
         embedders = [
             self.get_tfidf_embeddings,
@@ -159,7 +159,7 @@ class Similarities:
 
 if __name__ == '__main__':
 
-    df = pd.read_csv('../../resources/shahnameh-labeled.csv')
+    df = pd.read_csv('resources/shahnameh-labeled.csv')
     model = Similarities(df)
 
     sample = 'خداوند نام و خداوند گنج - بدانکس که دل را به دانش بشست'
