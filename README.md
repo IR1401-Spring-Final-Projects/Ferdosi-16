@@ -13,5 +13,5 @@ To see the webpage, browse to http://localhost:8080/
 
 After you're done with the project, you can run the following command to stop the project:
 ```bash
-docker compose -p ir down --rmi all
+docker compose -p ir down --rmi local
 ```

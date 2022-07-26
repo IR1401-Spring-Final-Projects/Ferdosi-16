@@ -7,6 +7,7 @@ class SearchServer(search_pb2_grpc.SearchServicer):
     def __init__(self):
         self.search_result_providers: List[search_result.SearchResult] = [
             search_result.TfidfSearchResult(),
+            search_result.ElasticSearchResult(),
         ]
 
     def Retrieve(self, request, context) -> search_pb2.SearchResponse:

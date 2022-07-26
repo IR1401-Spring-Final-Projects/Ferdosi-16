@@ -64,7 +64,7 @@ message DocumentResponseItem {
 }
 
 message Document {
-  uint32 id = 1;
+  string id = 1;
   string mesra1 = 2;
   string mesra2 = 3;
   string label = 4;
