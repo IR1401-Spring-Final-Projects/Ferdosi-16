@@ -2,13 +2,42 @@ from sklearn.model_selection import train_test_split
 from datasets import Dataset, DatasetDict, load_metric
 
 from transformers import AutoTokenizer, DataCollatorWithPadding, pipeline, \
-    AutoModelForSequenceClassification, TrainingArguments, Trainer
+    AutoModelForSequenceClassification, TrainingArguments, Trainer, AutoConfig
 
 import pandas as pd
+import numpy as np
 import hazm
 
 import torch.nn as nn
 import torch
+
+SAVE_TOTAL_LIMIT = 5
+
+normalizer = hazm.Normalizer(token_based=True)
+
+
+def get_classifier(checkpoint):
+    class Classifier(object):
+
+        def __init__(self):
+            config = AutoConfig.from_pretrained(checkpoint)
+            self.model = AutoModelForSequenceClassification.from_pretrained(checkpoint, config=config)
+            self.tokenizer = AutoTokenizer.from_pretrained(checkpoint)
+
+        @staticmethod
+        def softmax(_outputs):
+            maxes = np.max(_outputs, axis=-1, keepdims=True)
+            shifted_exp = np.exp(_outputs - maxes)
+            return shifted_exp / shifted_exp.sum(axis=-1, keepdims=True)
+
+        def predict(self, text):
+            text = normalizer.normalize(text)
+            outputs = self.model(**self.tokenizer([text], padding=True, return_tensors='pt'))
+            outputs = outputs["logits"][0].detach().numpy()
+            outputs = self.softmax(outputs)
+            return self.model.config.id2label[outputs.argmax().item()], outputs.max().item()
+
+    return Classifier()
 
 
 class CustomTrainer(Trainer):
@@ -37,16 +66,16 @@ class CustomTrainer(Trainer):
 
 class ClassificationModel:
 
-    def __init__(self, model_name, num_labels):
+    def __init__(self, model_name, label2id, id2label):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         self.classifier = None
-        self.model = AutoModelForSequenceClassification.from_pretrained(
-            model_name, num_labels=num_labels)
+        self.config = AutoConfig.from_pretrained(model_name, label2id=label2id, id2label=id2label)
+        self.model = AutoModelForSequenceClassification.from_pretrained(model_name, config=self.config)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
 
     @staticmethod
-    def training_args_builder(output_dir="../models/", learning_rate=2e-5, train_batch_size=16,
+    def training_args_builder(output_dir="../../resources/", learning_rate=2e-5, train_batch_size=16,
                               eval_batch_size=16, num_train_epochs=10, weight_decay=0.01):
         return TrainingArguments(
             output_dir=output_dir,
@@ -55,16 +84,14 @@ class ClassificationModel:
             weight_decay=weight_decay,
             learning_rate=learning_rate,
             num_train_epochs=num_train_epochs,
-            save_steps=500,
-            save_total_limit=5,
+            save_steps=100,
+            save_total_limit=SAVE_TOTAL_LIMIT,
         )
 
     def train(self, dataset, lose_weight, training_args=None):
-
         training_args = training_args or self.training_args_builder()
 
-        train_df, validation_df = train_test_split(
-            dataset, test_size=0.2, random_state=42, shuffle=True)
+        train_df, validation_df = train_test_split(dataset, test_size=0.2, random_state=42, shuffle=True)
 
         train_dataset, validation_dataset = \
             Dataset.from_dict(train_df), Dataset.from_dict(validation_df)
@@ -74,8 +101,7 @@ class ClassificationModel:
         def preprocess_function(data):
             return self.tokenizer(data["text"], truncation=True, padding=True)
 
-        tokenized_data = dataset.map(
-            preprocess_function, batched=True, remove_columns=['text'])
+        tokenized_data = dataset.map(preprocess_function, batched=True, remove_columns=['text'])
 
         data_collator = DataCollatorWithPadding(tokenizer=self.tokenizer)
 
@@ -100,7 +126,7 @@ class ClassificationModel:
 
 
 if __name__ == '__main__':
-    df = pd.read_csv('/resources/shahnameh-labeled.csv')
+    df = pd.read_csv('../../resources/shahnameh-labeled.csv')
     num_stories = 10
 
     groups = df.groupby('labels').count().sort_values('text', ascending=False)
@@ -124,14 +150,11 @@ if __name__ == '__main__':
 
     main_df = main_df[main_df.labels < len(id2lab)]
 
-    print("counts: ", counts / counts.sum())
     weight_loss = (1 / counts) / (1 / counts).sum()
-    print("weight_loss: ", weight_loss / weight_loss.sum())
 
     # New pre-trained model: mitra-mir/BERT-Persian-Poetry
-    directory = None
     classifier = ClassificationModel(
-        directory or "HooshvareLab/bert-fa-zwnj-base", num_labels=len(labels))
+        "HooshvareLab/bert-fa-zwnj-base", label2id=lab2id, id2label=id2lab)
 
     classifier.train(main_df, weight_loss, None)
 
