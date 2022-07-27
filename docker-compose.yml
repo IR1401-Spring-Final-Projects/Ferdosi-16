@@ -54,7 +54,8 @@ services:
     ports:
       - '9201:9200'
     volumes:
-      - data:/root/.cache/huggingface/transformers
+      - data:/root/.cache/huggingface/transformers/
+      - data:/app/resources/similarities/
   web:
     depends_on:
       - retrieve

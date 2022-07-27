@@ -45,14 +45,15 @@ class Similarities:
             logger.warning('It is not possible to load pipeline. Again the models are trained.')
 
             self.directory = 'resources/similarities/'
-            if not os.path.exists(self.directory): os.mkdir(self.directory)
+            if not os.path.exists(self.directory):
+                os.mkdir(self.directory)
 
             self.pipe = Pipeline(
                 [('count',
-                  CountVectorizer(analyzer='word', ngram_range=(1, 2), max_features=20_000, stop_words=stop_words)),
+                  CountVectorizer(analyzer='word', ngram_range=(1, 2), max_features=10_000, stop_words=stop_words)),
                  ('tfidf', TfidfTransformer(sublinear_tf=True))]).fit(self.dataset['text'].tolist())
 
-        self.word_idf = dict(zip(self.pipe['count'].get_feature_names(), self.pipe['tfidf'].idf_))
+        self.word_idf = dict(zip(self.pipe['count'].get_feature_names_out(), self.pipe['tfidf'].idf_))
 
         embedders = [
             self.get_tfidf_embeddings,

@@ -42,7 +42,7 @@ class HTML2CSV:
 
             if HTML2CSV.filter_labels(item):
                 label = item.get_text()
-            elif not (HTML2CSV.filter_poems(item) and label) or label in skip_labels:
+            elif not (HTML2CSV.filter_poems(item) and label) or label in skip_labels or not label.startswith('داستان'):
                 continue
 
             text = item.get_text()

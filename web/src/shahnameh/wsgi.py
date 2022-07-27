@@ -25,7 +25,7 @@ def close_channel():
 
 
 signal.signal(signal.SIGINT, close_channel)
-signal.signal(signal.SIGTerm, close_channel)
+signal.signal(signal.SIGTERM, close_channel)
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'shahnameh.settings')
 
