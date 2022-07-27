@@ -39,8 +39,8 @@ class BooleanSearchResult(SearchResult):
                 search_pb2.DocumentResponseItem(
                     document=search_pb2.Document(
                         id=i,
-                        mesra1=poem.split(' [SEP] ')[0],
-                        mesra2=poem.split(' [SEP] ')[1],
+                        mesra1=poem.split(' - ')[0],
+                        mesra2=poem.split(' - ')[1],
                         label=label,
                     ),
                     reason_of_choice=self._method,
@@ -60,8 +60,8 @@ class TfidfSearchResult(SearchResult):
                 search_pb2.DocumentResponseItem(
                     document=search_pb2.Document(
                         id=f'{i}',
-                        mesra1=poem.split(' [SEP] ')[0],
-                        mesra2=poem.split(' [SEP] ')[1],
+                        mesra1=poem.split(' - ')[0],
+                        mesra2=poem.split(' - ')[1],
                         label=label,
                     ),
                     reason_of_choice=self._method,
@@ -81,8 +81,8 @@ class WordEmbeddingSearchResult(SearchResult):
                 search_pb2.DocumentResponseItem(
                     document=search_pb2.Document(
                         id=f'{i}',
-                        mesra1=poem.split(' [SEP] ')[0],
-                        mesra2=poem.split(' [SEP] ')[1],
+                        mesra1=poem.split(' - ')[0],
+                        mesra2=poem.split(' - ')[1],
                         label=label,
                     ),
                     reason_of_choice=self._method,
@@ -102,8 +102,8 @@ class SentEmbeddingSearchResult(SearchResult):
                 search_pb2.DocumentResponseItem(
                     document=search_pb2.Document(
                         id=f'{i}',
-                        mesra1=poem.split(' [SEP] ')[0],
-                        mesra2=poem.split(' [SEP] ')[1],
+                        mesra1=poem.split(' - ')[0],
+                        mesra2=poem.split(' - ')[1],
                         label=label,
                     ),
                     reason_of_choice=self._method,
