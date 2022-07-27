@@ -85,7 +85,7 @@ class LinkDocumentsAnalyzer:
 if __name__ == '__main__':
     normalizer = hazm.Normalizer(token_based=True)
 
-    poems = pd.read_csv('../../resources/shahnameh-dataset.csv')['text']
+    poems = pd.read_csv('../../resources/shahnameh-labeled.csv')['text']
     poems = poems.apply(normalizer.normalize)
 
     chars = pd.read_csv('../../resources/shahnameh_characters.csv')['regex']
