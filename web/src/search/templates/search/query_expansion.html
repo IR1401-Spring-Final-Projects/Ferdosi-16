@@ -1,3 +1,4 @@
-{% if expand %}
+{% if expand.items.0.expanded!=query %}
+جست و جوی بهتر:
 <a href="/?query={{expand.items.0.expanded}}">{{expand.items.0.expanded}}</a>
 {% endif %}
