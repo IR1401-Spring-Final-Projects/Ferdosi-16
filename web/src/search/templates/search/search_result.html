@@ -23,15 +23,15 @@
         {% include "search/search_result_content.html" with items=search.searchResults.elastic.items %}
     </div>
     <div class="tab-pane fade" id="nav-tfidf" role="tabpanel" aria-labelledby="nav-profile-tab">
-        {% include "search/search_result_content.html" %}
+        {% include "search/search_result_content.html" with items=search.searchResults.tfidf.items %}
     </div>
     <div class="tab-pane fade" id="nav-word_embedding" role="tabpanel" aria-labelledby="nav-contact-tab">
-        {% include "search/search_result_content.html" %}
+        {% include "search/search_result_content.html" with items=search.searchResults.wordEmbedding.items %}
     </div>
     <div class="tab-pane fade" id="nav-sent_embedding" role="tabpanel" aria-labelledby="nav-contact-tab">
-        {% include "search/search_result_content.html" %}
+        {% include "search/search_result_content.html" with items=search.searchResults.sentEmbedding.items %}
     </div>
     <div class="tab-pane fade" id="nav-boolean" role="tabpanel" aria-labelledby="nav-contact-tab">
-        {% include "search/search_result_content.html" %}
+        {% include "search/search_result_content.html" with items=search.searchResults.boolean.items %}
     </div>
 </div>
