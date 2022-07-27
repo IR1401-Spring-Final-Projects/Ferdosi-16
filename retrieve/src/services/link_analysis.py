@@ -5,10 +5,15 @@ import networkx as nx
 import pandas as pd
 import numpy as np
 
+normalizer = hazm.Normalizer(token_based=True)
+
 
 class LinkDocumentsAnalyzer:
 
     def __init__(self, document, elements, threshold, window_size):
+
+        document = document.apply(normalizer.normalize)
+        elements = elements.apply(normalizer.normalize)
 
         positions, filtered_elements = self.create_position_matrix(document, elements, threshold)
 
@@ -30,6 +35,9 @@ class LinkDocumentsAnalyzer:
             for (k, vh), (_, va) in zip(hubs.items(), authorities.items())
         ])
         self.hitsrank = self.hitsrank.sort_values('hubs', ascending=False)
+
+        self.merged = pd.merge(self.pagerank, self.hitsrank, left_on='element', right_on='element')
+        self.merged = self.merged[['element', 'rank', 'hubs']]
 
     @staticmethod
     def create_position_matrix(documents, elements, threshold):
@@ -75,22 +83,19 @@ class LinkDocumentsAnalyzer:
     def get_hitsrank(self, element):
         return self.hitsrank[self.hitsrank.element.str.contains(element)]
 
-    def get_pageranks(self, n):
-        return self.pagerank[:n]
+    def get_query_ranks(self, query):
+        matches = []
+        for regex, rank, hubs in self.merged.to_records(index=False):
+            if re.search(regex, query):
+                matches.append((regex.split('|')[0], rank, hubs))
 
-    def get_hitsranks(self, n):
-        return self.hitsrank[:n]
+        return matches
 
 
 if __name__ == '__main__':
-    normalizer = hazm.Normalizer(token_based=True)
-
     poems = pd.read_csv('../../resources/shahnameh-labeled.csv')['text']
-    poems = poems.apply(normalizer.normalize)
-
     chars = pd.read_csv('../../resources/shahnameh_characters.csv')['regex']
-    chars = chars.apply(normalizer.normalize)
 
     analyzer = LinkDocumentsAnalyzer(poems, chars, 1, 5)
 
-    print(analyzer.get_pagerank('رستم'), analyzer.get_hitsrank('رستم'))
+    print(analyzer.get_query_ranks('رستم رفت خرید کشت همه'))

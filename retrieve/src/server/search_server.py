@@ -5,6 +5,9 @@ from api import search_pb2, search_pb2_grpc
 from server import search_result
 from services.similarities import Similarities
 from services.clustring import Clustering
+from services.classification import get_classifier
+
+from retrieve.src.services.link_analysis import LinkDocumentsAnalyzer
 
 
 class SearchServer(search_pb2_grpc.SearchServicer):
@@ -21,6 +24,15 @@ class SearchServer(search_pb2_grpc.SearchServicer):
 
         self.clustering = Clustering(df, 9, _checkpoint='resources/clustering')
 
+        chars = pd.read_csv('resources/shahnameh_characters.csv')['regex']
+        cities = pd.read_csv('resources/shahnameh_cities.csv')['regex']
+        doc = pd.read_csv('resources/shahnameh-labeled.csv')['text']
+
+        self.analyzer_chars = LinkDocumentsAnalyzer(doc, chars, 1, 5)
+        self.analyzer_place = LinkDocumentsAnalyzer(doc, cities, 1, 20)
+
+        self.classification = get_classifier('resources/best-model-classification')
+
     def Retrieve(self, request, context) -> search_pb2.SearchResponse:
         query = request.query
 
@@ -28,12 +40,13 @@ class SearchServer(search_pb2_grpc.SearchServicer):
         for provider in self.search_result_providers:
             search_results[provider.method] = provider.get_search_result(query)
 
+        label, score = self.classification.predict(query)
         classification_result = search_pb2.ClassificationResponse(
             items=[
                 search_pb2.ClassificationResponseItem(
                     id=1,
-                    label='',
-                    similarity=0.0,
+                    label=label,
+                    similarity=score,
                 )
             ]
         )
@@ -52,14 +65,22 @@ class SearchServer(search_pb2_grpc.SearchServicer):
 
         important_names_result = search_pb2.ImportantNameResponse(
             items=[
-                search_pb2.ImportantNameResponseItem(
-                    id=1,
-                    name='',
-                    type='شخصیت',
-                    page_rank=0.0,
-                    hits_rank=0.0,
-                )
-            ]
+                      search_pb2.ImportantNameResponseItem(
+                          id=i,
+                          name=name,
+                          type='شخصیت',
+                          page_rank=rank,
+                          hits_rank=hubs,
+                      ) for i, (name, rank, hubs) in enumerate(self.analyzer_chars.get_query_ranks(query))
+                  ] + [
+                      search_pb2.ImportantNameResponseItem(
+                          id=i,
+                          name=name,
+                          type='مکان',
+                          page_rank=rank,
+                          hits_rank=hubs,
+                      ) for i, (name, rank, hubs) in enumerate(self.analyzer_place.get_query_ranks(query))
+                  ]
         )
 
         return search_pb2.SearchResponse(
