@@ -2,13 +2,14 @@ import os
 from abc import ABC, abstractmethod
 from api import search_pb2
 from services import elastic
-from services.similarities import Similarities
-
-import pandas as pd
 
 
 class SearchResult:
     _method = None
+    
+    def __init__(self, similarity=None, max_results=20):
+        self.similarity = similarity
+        self.max_results = max_results
 
     @abstractmethod
     def get_search_result(self, query) -> search_pb2.DocumentResponse:
@@ -17,17 +18,6 @@ class SearchResult:
     @property
     def method(self):
         return self._method
-
-
-similarity_class = None
-
-
-def get_search_model():
-    global similarity_class
-    if not similarity_class:
-        df = pd.read_csv('resources/shahnameh-labeled.csv')
-        similarity_class = Similarities(df)
-    return similarity_class
 
 
 class BooleanSearchResult(SearchResult):
@@ -39,14 +29,14 @@ class BooleanSearchResult(SearchResult):
                 search_pb2.DocumentResponseItem(
                     document=search_pb2.Document(
                         id=f'{i}',
-                        mesra1=poem.split(' - ')[0],
-                        mesra2=poem.split(' - ')[1],
+                        mesra1=poem.split('-')[0].strip(),
+                        mesra2=poem.split('-')[1].strip(),
                         label=label,
                     ),
                     reason_of_choice=self._method,
                     similarity=similarity,
                 ) for i, (poem, label, similarity) in
-                enumerate(get_search_model().get_similar_by_boolean(query, 100))
+                enumerate(self.similarity.get_similar_by_boolean(query, self.max_results))
             ]
         )
 
@@ -60,14 +50,14 @@ class TfidfSearchResult(SearchResult):
                 search_pb2.DocumentResponseItem(
                     document=search_pb2.Document(
                         id=f'{i}',
-                        mesra1=poem.split(' - ')[0],
-                        mesra2=poem.split(' - ')[1],
+                        mesra1=poem.split('-')[0].strip(),
+                        mesra2=poem.split('-')[1].strip(),
                         label=label,
                     ),
                     reason_of_choice=self._method,
                     similarity=similarity,
                 ) for i, (poem, label, similarity) in
-                enumerate(get_search_model().get_similar_by_tfidf(query, 100))
+                enumerate(self.similarity.get_similar_by_tfidf(query, self.max_results))
             ]
         )
 
@@ -81,14 +71,14 @@ class WordEmbeddingSearchResult(SearchResult):
                 search_pb2.DocumentResponseItem(
                     document=search_pb2.Document(
                         id=f'{i}',
-                        mesra1=poem.split(' - ')[0],
-                        mesra2=poem.split(' - ')[1],
+                        mesra1=poem.split('-')[0].strip(),
+                        mesra2=poem.split('-')[1].strip(),
                         label=label,
                     ),
                     reason_of_choice=self._method,
                     similarity=similarity,
                 ) for i, (poem, label, similarity) in
-                enumerate(get_search_model().get_similar_by_word_embedding(query, 100))
+                enumerate(self.similarity.get_similar_by_word_embedding(query, self.max_results))
             ]
         )
 
@@ -102,14 +92,14 @@ class SentEmbeddingSearchResult(SearchResult):
                 search_pb2.DocumentResponseItem(
                     document=search_pb2.Document(
                         id=f'{i}',
-                        mesra1=poem.split(' - ')[0],
-                        mesra2=poem.split(' - ')[1],
+                        mesra1=poem.split('-')[0].strip(),
+                        mesra2=poem.split('-')[1].strip(),
                         label=label,
                     ),
                     reason_of_choice=self._method,
                     similarity=similarity,
                 ) for i, (poem, label, similarity) in
-                enumerate(get_search_model().get_similar_by_sentence_embedding(query, 100))
+                enumerate(self.similarity.get_similar_by_sentence_embedding(query, self.max_results))
             ]
         )
 
@@ -118,6 +108,7 @@ class ElasticSearchResult(SearchResult):
     _method = 'elastic'
 
     def __init__(self):
+        super().__init__()
         es_host = os.getenv('ELASTICSEARCH_URL', 'http://localhost:9200')
         self.es_query = elastic.ElasticSearchQuery(es_host=es_host)
 

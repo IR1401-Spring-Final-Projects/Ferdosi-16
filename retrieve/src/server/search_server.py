@@ -1,15 +1,19 @@
 from typing import List
+import pandas as pd
 from api import search_pb2, search_pb2_grpc
 from server import search_result
+from services.similarities import Similarities
 
 
 class SearchServer(search_pb2_grpc.SearchServicer):
     def __init__(self):
+        df = pd.read_csv('resources/shahnameh-labeled.csv')
+        similarity = Similarities(df)
         self.search_result_providers: List[search_result.SearchResult] = [
-            search_result.TfidfSearchResult(),
-            search_result.BooleanSearchResult(),
-            search_result.WordEmbeddingSearchResult(),
-            search_result.SentEmbeddingSearchResult(),
+            search_result.TfidfSearchResult(similarity),
+            search_result.BooleanSearchResult(similarity),
+            search_result.WordEmbeddingSearchResult(similarity),
+            search_result.SentEmbeddingSearchResult(similarity),
             search_result.ElasticSearchResult(),
         ]
 
