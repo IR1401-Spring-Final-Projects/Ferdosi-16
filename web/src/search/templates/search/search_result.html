@@ -1,0 +1,37 @@
+<nav>
+    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+        <button class="nav-link active" id="nav-elastic-tab" data-bs-toggle="tab" data-bs-target="#nav-elastic"
+                type="button" role="tab" aria-controls="nav-home" aria-selected="true">elastic
+        </button>
+        <button class="nav-link" id="nav-tfidf-tab" data-bs-toggle="tab" data-bs-target="#nav-tfidf"
+                type="button" role="tab" aria-controls="nav-profile" aria-selected="false">tfidf
+        </button>
+        <button class="nav-link" id="nav-word_embedding-tab" data-bs-toggle="tab" data-bs-target="#nav-word_embedding"
+                type="button" role="tab" aria-controls="nav-contact" aria-selected="false">word_embedding
+        </button>
+        <button class="nav-link" id="nav-sent_embedding-tab" data-bs-toggle="tab" data-bs-target="#nav-sent_embedding"
+                type="button" role="tab" aria-controls="nav-contact" aria-selected="false">sent_embedding
+        </button>
+        <button class="nav-link" id="nav-boolean-tab" data-bs-toggle="tab" data-bs-target="#nav-boolean"
+                type="button" role="tab" aria-controls="nav-contact" aria-selected="false">boolean
+        </button>
+    </div>
+</nav>
+
+<div class="tab-content" id="nav-tabContent">
+    <div class="tab-pane fade show active" id="nav-elastic" role="tabpanel" aria-labelledby="nav-home-tab">
+        {% include "search/search_result_content.html" %}
+    </div>
+    <div class="tab-pane fade" id="nav-tfidf" role="tabpanel" aria-labelledby="nav-profile-tab">
+        {% include "search/search_result_content.html" %}
+    </div>
+    <div class="tab-pane fade" id="nav-word_embedding" role="tabpanel" aria-labelledby="nav-contact-tab">
+        {% include "search/search_result_content.html" %}
+    </div>
+    <div class="tab-pane fade" id="nav-sent_embedding" role="tabpanel" aria-labelledby="nav-contact-tab">
+        {% include "search/search_result_content.html" %}
+    </div>
+    <div class="tab-pane fade" id="nav-boolean" role="tabpanel" aria-labelledby="nav-contact-tab">
+        {% include "search/search_result_content.html" %}
+    </div>
+</div>
