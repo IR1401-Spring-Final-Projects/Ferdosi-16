@@ -13,6 +13,8 @@ class TestClass(View):
             query_response = grpc_cli.search_stub.Retrieve(search_pb2.SearchRequest(query=query))
             query_expansion_response = grpc_cli.query_expansion_stub.Expand(
                 query_expansion_pb2.ExpandRequest(query=query))
-            return render(request, "search/main.html",
-                          MessageToDict(query_response) + MessageToDict(query_expansion_response))
+            return render(request, "search/main.html", {
+                "search": MessageToDict(query_response),
+                "expand": MessageToDict(query_expansion_response)
+            })
         return render(request, "search/main.html")
