@@ -1,0 +1,21 @@
+<div class="col-12">
+    <div class="row">
+        <h3>
+            خوشه بندی
+        </h3>
+    </div>
+    <div class="row">
+        <table>
+            {% for item in search.clustering.mostRepeatedLabels %}
+                <tr>
+                    <td>
+                        {{item.label}}
+                    </td>
+                    <td>
+                        {{item.count}}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
