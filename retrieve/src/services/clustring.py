@@ -1,6 +1,6 @@
 import hazm
-import matplotlib.pyplot as plt
-import seaborn as sns
+# import matplotlib.pyplot as plt
+# import seaborn as sns
 import pandas as pd
 import numpy as np
 import logging
@@ -12,7 +12,7 @@ from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 from transformers import AutoTokenizer, AutoModel, AutoConfig
 
-sns.set()
+# sns.set()
 logger = logging.getLogger(__name__)
 normalizer = hazm.Normalizer(token_based=True)
 
@@ -52,7 +52,8 @@ class Clustering:
         self.labels = self.kmeans.fit_predict(self.embeddings)
 
         self.directory = '../../resources/clustering/'
-        if not os.path.exists(self.directory): os.mkdir(self.directory)
+        if not os.path.exists(self.directory):
+            os.mkdir(self.directory)
 
         self.save_pca()
         self.save_kmeans()
@@ -62,7 +63,7 @@ class Clustering:
     def generate_cluster_labels(self):
         return self.dataset.groupby(['cluster_id', 'labels'])['text'] \
             .agg(['count']).sort_values('count', ascending=False).reset_index() \
-            .groupby('cluster_id')['labels'].apply(lambda x: list(x)[:3])
+            .groupby('cluster_id').apply(lambda x: (list(x['count']), list(x['labels'])))
 
     @staticmethod
     def _batch_series(iterable, n=2_000):
@@ -107,28 +108,29 @@ class Clustering:
         cluster_id = self.kmeans.predict(embedding)[0]
         return cluster_id, self.cluster_labels[cluster_id]
 
-    def plot_clusters(self, n=1_000):
-        pca = PCA(n_components=2)
-        sample = np.random.randint(0, self.embeddings.shape[0], n)
-        mini_embeddings = pca.fit_transform(self.embeddings[sample])
-
-        sns.scatterplot(
-            x=mini_embeddings[:, 0],
-            y=mini_embeddings[:, 1], c=self.labels[sample], cmap='cool')
-
-        sns.scatterplot(
-            x=self.kmeans.cluster_centers_[:, 0],
-            y=self.kmeans.cluster_centers_[:, 1], c=['black'])
-
-        plt.show()
+    # def plot_clusters(self, n=1_000):
+    #     pca = PCA(n_components=2)
+    #     sample = np.random.randint(0, self.embeddings.shape[0], n)
+    #     mini_embeddings = pca.fit_transform(self.embeddings[sample])
+    #
+    #     sns.scatterplot(
+    #         x=mini_embeddings[:, 0],
+    #         y=mini_embeddings[:, 1], c=self.labels[sample], cmap='cool')
+    #
+    #     sns.scatterplot(
+    #         x=self.kmeans.cluster_centers_[:, 0],
+    #         y=self.kmeans.cluster_centers_[:, 1], c=['black'])
+    #
+    #     plt.show()
 
 
 if __name__ == '__main__':
     df = pd.read_csv('../../resources/shahnameh-labeled.csv')
 
     checkpoint = '../../resources/clustering'
-    model = Clustering(df, 9, _checkpoint=None)
-    model.plot_clusters()
+    model = Clustering(df, 9, _checkpoint=checkpoint)
+    # model.plot_clusters()
 
-    cid, labels = model.predict_cluster('رستم رفت جنگ و سهراب سوییچ رخش را برداشت رفت توران')
-    print('labels: ', labels)
+    cid, (counts, labels) = model.predict_cluster('رستم رفت جنگ و سهراب سوییچ رخش را برداشت رفت توران')
+    for c, l in zip(counts, labels):
+        print(f'count:{c} label:{l}')
