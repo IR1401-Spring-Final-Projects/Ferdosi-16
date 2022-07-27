@@ -5,10 +5,6 @@ from api import search_pb2_grpc, query_expansion_pb2_grpc
 
 
 class GrpcClient:
-    def __new__(cls):
-        if not hasattr(cls, 'instance'):
-            cls.instance = super(GrpcClient, cls).__new__(cls)
-        return cls.instance
 
     def __init__(self):
         server_address = os.getenv('GRPC_SERVER_ADDRESS', 'localhost:9201')

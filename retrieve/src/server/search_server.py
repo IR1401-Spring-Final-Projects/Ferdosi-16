@@ -28,6 +28,16 @@ class SearchServer(search_pb2_grpc.SearchServicer):
         for provider in self.search_result_providers:
             search_results[provider.method] = provider.get_search_result(query)
 
+        classification_result = search_pb2.ClassificationResponse(
+            items=[
+                search_pb2.ClassificationResponseItem(
+                    id=1,
+                    label='',
+                    similarity=0.0,
+                )
+            ]
+        )
+
         cid, (counts, labels) = self.clustering.predict_cluster(query)
         cluster_result = search_pb2.ClusteringResponse(
             cluster_id=cid,
@@ -40,7 +50,21 @@ class SearchServer(search_pb2_grpc.SearchServicer):
             ]
         )
 
+        important_names_result = search_pb2.ImportantNameResponse(
+            items=[
+                search_pb2.ImportantNameResponseItem(
+                    id=1,
+                    name='',
+                    type='شخصیت',
+                    page_rank=0.0,
+                    hits_rank=0.0,
+                )
+            ]
+        )
+
         return search_pb2.SearchResponse(
             search_results=search_results,
+            classification=classification_result,
             clustering=cluster_result,
+            important_names=important_names_result
         )
