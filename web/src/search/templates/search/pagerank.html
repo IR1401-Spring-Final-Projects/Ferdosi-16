@@ -30,10 +30,10 @@
                         {{item.type}}
                     </td>
                     <td>
-                        {{item.pageRank}}
+                        {{item.pageRank|floatformat:5}}
                     </td>
                     <td>
-                        {{item.hitsRank}}
+                        {{item.hitsRank|floatformat:5}}
                     </td>
                 </tr>
             {% endfor %}

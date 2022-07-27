@@ -1,4 +1,3 @@
-from time import sleep
 from typing import List
 import pandas as pd
 from api import search_pb2, search_pb2_grpc
@@ -7,7 +6,7 @@ from services.similarities import Similarities
 from services.clustring import Clustering
 from services.classification import get_classifier
 
-from retrieve.src.services.link_analysis import LinkDocumentsAnalyzer
+from services.link_analysis import LinkDocumentsAnalyzer
 
 
 class SearchServer(search_pb2_grpc.SearchServicer):
@@ -25,8 +24,8 @@ class SearchServer(search_pb2_grpc.SearchServicer):
         self.clustering = Clustering(df, 9, _checkpoint='resources/clustering')
 
         chars = pd.read_csv('resources/shahnameh_characters.csv')['regex']
-        cities = pd.read_csv('resources/shahnameh_cities.csv')['regex']
-        doc = pd.read_csv('resources/shahnameh-labeled.csv')['text']
+        cities = pd.read_csv('resources/shahnameh_cities.csv')['city']
+        doc = df['text']
 
         self.analyzer_chars = LinkDocumentsAnalyzer(doc, chars, 1, 5)
         self.analyzer_place = LinkDocumentsAnalyzer(doc, cities, 1, 20)

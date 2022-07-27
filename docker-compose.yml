@@ -64,7 +64,7 @@ services:
     environment:
       DJANGO_PORT: 8000
       GRPC_SERVER_ADDRESS: retrieve:9200
-#      DEBUG: false
+      DEBUG: false
     ports:
       - '8000:8000'
 

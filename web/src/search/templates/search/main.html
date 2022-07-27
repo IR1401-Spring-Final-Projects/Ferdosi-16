@@ -1,14 +1,14 @@
 {% extends "search/base.html" %}
 {% block content %}
-<div class="row mt-5 mb-5 ms-2 me-2" style="background-color: #161b22; border-radius: 5px;">
+<div class="row mt-3 mb-4 ms-2 me-2" style="background-color: #161b22; border-radius: 5px;">
     {% include "search/search_bar.html" %}
 </div>
 {% if query %}
-<div class="row mt-5 mb-5 ms-2 me-2" style="background-color:  #0d1117; border-radius: 5px; color: white;">
+<div class="row mt-2 mb-2 ms-2 me-2" style="background-color:  #0d1117; border-radius: 5px; color: white;">
     {% include "search/query_expansion.html" %}
 </div>
 <div class="row">
-    <div class="col-7  ms-2 me-2">
+    <div class="col-7 ms-2 me-2">
         <div class="row" style="background-color: #161b22; border-radius: 5px;">
             {% include "search/search_result.html" %}
         </div>
