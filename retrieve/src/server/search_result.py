@@ -38,7 +38,7 @@ class BooleanSearchResult(SearchResult):
             items=[
                 search_pb2.DocumentResponseItem(
                     document=search_pb2.Document(
-                        id=i,
+                        id=f'{i}',
                         mesra1=poem.split(' - ')[0],
                         mesra2=poem.split(' - ')[1],
                         label=label,
