@@ -15,6 +15,7 @@ class TestClass(View):
                 query_expansion_pb2.ExpandRequest(query=query))
             return render(request, "search/main.html", {
                 "search": MessageToDict(query_response),
-                "expand": MessageToDict(query_expansion_response)
+                "expand": MessageToDict(query_expansion_response),
+                "query": query
             })
         return render(request, "search/main.html")
