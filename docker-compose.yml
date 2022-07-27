@@ -55,7 +55,7 @@ services:
       - '9201:9200'
     volumes:
       - huggingface_data:/root/.cache/huggingface/transformers/
-      - retrieve_data:/app/resources/clustering/
+      - retrieve_data:/app/resources/
   web:
     depends_on:
       - retrieve
