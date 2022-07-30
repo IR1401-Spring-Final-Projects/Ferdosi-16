@@ -30,7 +30,7 @@ class SearchServer(search_pb2_grpc.SearchServicer):
         self.analyzer_chars = LinkDocumentsAnalyzer(doc, chars, 1, 5)
         self.analyzer_place = LinkDocumentsAnalyzer(doc, cities, 1, 20)
 
-        self.classification = get_classifier('resources/best-model-classification')
+        self.classification = get_classifier('./resources/classification/')
 
     def Retrieve(self, request, context) -> search_pb2.SearchResponse:
         query = request.query
